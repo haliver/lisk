@@ -50,19 +50,31 @@ describe('delegates', () => {
 					publicKey:
 						'9d3058175acab969f41ad9b86f7a2926c74258670fe56b37c429c01fca9f2f0f',
 					encryptedSecret:
-						'19e9f8eee5d9516234a10953669518bf23371d34e114713c8043a98378fd866834946380c4cc0e40f23305643206c1c5be496074f350d09d87735c42eae30c604cabea9862f4fe8f906313c67a7146d54fa844171e6cf925b7c953987082cdd6',
+						'5d6bca0692a99eebb4bcc67fbd1b55c6a4c21bb5578b70f57042b397457580e8ae922c59f8bb12c73028f30c625fd394e35a5b96764c5abb204cedbfc15f9dc5dbd5b981c138f2526f6c577d8a9e6b3e',
+					iv: '4db430d52d862820edb29754bc9dfd20',
+					salt: '74926b77fac5e1fce3ccef87634490e5',
+					tag: '757d487cb2f09a95b2de021a494b4728',
+					version: '1.0.0',
 				},
 				{
 					publicKey:
 						'141b16ac8d5bd150f16b1caa08f689057ca4c4434445e56661831f4e671b7c0a',
 					encryptedSecret:
-						'14ac6a589c2d3690dd1638eeccfa5ea6f88bfcf01bdcd65665ede305260f63f3d4ee87cb35ade7c237255a898f080fb160110ab2900108bb99cb9215771b1aaa6892ae48789f6a985b3cedf7ad42e94c',
+						'efdb41939ee2a13951645a757ebeceb03c74ea481e4ee2d046aeddcdce2101d52f76a2b46766fc6ebe27fa833ff6fde632350925bfb852dccb65f2aed024fc0f59d4bc8ef5527f03a54b7b60',
+					iv: '9e12e55bbdc2e2c4e07b8f0dcdcb6952',
+					salt: '71cfb1a5781f85997074b7844519b229',
+					tag: '7ae22ddfd9a07efc827d95ec83669095',
+					version: '1.0.0',
 				},
 				{
 					publicKey:
 						'3ff32442bb6da7d60c1b7752b24e6467813c9b698e0f278d48c43580da972135',
 					encryptedSecret:
-						'2df503fb168552063136a479fe5598a28e90261b8ba6c16a8a27ff3ac9b3398aeebe6cf7afe6e84279f204bfcd2a62a18d71e08b14792a456bd3b78e60e215263a3aa2ed401346016e72c2a841e0d236',
+						'47a7d3f5f1c17574588024626da44b0d90f165a13b7e8820f642a50d0d9db06c251f0cd4bf0b7f6407caf7cd018255b7cc073c8367b1c4b8da60de47773e12159f4ff1993229b112e1a9f116a3e9',
+					iv: '098f33427cd49a59f28dd95e3167f257',
+					salt: 'f860e9257fd57ec396daa75b673b311c',
+					tag: '416f0c8416ed972d1fb13ecabd4bc20b',
+					version: '1.0.0',
 				},
 			];
 
@@ -115,10 +127,15 @@ describe('delegates', () => {
 
 			it('should return error if encrypted secret does not decrypt with default secret', done => {
 				var accountDetails = {
-					encryptedSecret:
-						'1cc653f6bc2a458ae758dcd618b310e31e1598f237c4c4d96321173050e49c3652876808c73ebc2aa75f49044375077108ca7b8594efc6ae4ce0aa239d7e11f',
 					publicKey:
-						'35b9364d1733e503599a1e9eefdb4994dd07bb9924acebfec06195cf1a0fa6db',
+						'9d3058175acab969f41ad9b86f7a2926c74258670fe56b37c429c01fca9f2f0f',
+					// encryptedSecret is one character too short
+					encryptedSecret:
+						'5d6bca0692a99eebb4bcc67fbd1b55c6a4c21bb5578b70f57042b397457580e8ae922c59f8bb12c73028f30c625fd394e35a5b96764c5abb204cedbfc15f9dc5dbd5b981c138f2526f6c577d8a9e6b3',
+					iv: '4db430d52d862820edb29754bc9dfd20',
+					salt: '74926b77fac5e1fce3ccef87634490e5',
+					tag: '757d487cb2f09a95b2de021a494b4728',
+					version: '1.0.0',
 				};
 
 				config.forging.secret = [accountDetails];
@@ -134,9 +151,14 @@ describe('delegates', () => {
 
 			it('should return error if publicKeys do not match', done => {
 				var accountDetails = {
+					publicKey:
+						'141b16ac8d5bd150f16b1caa08f689057ca4c4434445e56661831f4e671b7c0a',
 					encryptedSecret:
-						'60cc653f6bc2a458ae758dcd618b310e31e1598f237c4c4d96321173050e49c3652876808c73ebc2aa75f49044375077108ca7b8594efc6ae4ce0aa239d7e11f',
-					publicKey: 'randomKey',
+						'5d6bca0692a99eebb4bcc67fbd1b55c6a4c21bb5578b70f57042b397457580e8ae922c59f8bb12c73028f30c625fd394e35a5b96764c5abb204cedbfc15f9dc5dbd5b981c138f2526f6c577d8a9e6b3e',
+					iv: '4db430d52d862820edb29754bc9dfd20',
+					salt: '74926b77fac5e1fce3ccef87634490e5',
+					tag: '757d487cb2f09a95b2de021a494b4728',
+					version: '1.0.0',
 				};
 
 				config.forging.secret = [accountDetails];
@@ -150,17 +172,24 @@ describe('delegates', () => {
 
 			it('should return error if account does not exist', done => {
 				var randomAccount = {
-					publicKey:
-						'35b9364d1733e503599a1e9eefdb4994dd07bb9924acebfec06195cf1a0fa6db',
 					secret:
 						'robust swift deputy enable forget peasant grocery road convince',
+					publicKey:
+						'35b9364d1733e503599a1e9eefdb4994dd07bb9924acebfec06195cf1a0fa6db',
 					encryptedSecret:
-						'60cc653f6bc2a458ae758dcd618b310e31e1598f237c4c4d96321173050e49c3652876808c73ebc2aa75f49044375077108ca7b8594efc6ae4ce0aa239d7e11f',
-					key: 'elephant tree paris dragon chair galaxy',
+						'fd6467a4a5aa232b130ecab5b2998eb5590de99dfd9c414f6e6f86423d6f00ab4de3dd7287b0806ca2a0b353dbe1130d49f07d5c7cd72f8d9d52fa75168724',
+					iv: '20c38a975a376d67640438e66c99ef7f',
+					salt: 'a5ac11c77d71ee4396e16e7ced056d9f',
+					tag: 'bbfe6b743c27397b4392e64843e4c926',
+					version: '1.0.0',
 				};
 				var accountDetails = {
 					encryptedSecret: randomAccount.encryptedSecret,
 					publicKey: randomAccount.publicKey,
+					iv: randomAccount.iv,
+					salt: randomAccount.salt,
+					tag: randomAccount.tag,
+					version: randomAccount.version,
 				};
 
 				config.forging.secret = [accountDetails];
@@ -183,6 +212,10 @@ describe('delegates', () => {
 					{
 						encryptedSecret: accountFixtures.genesis.encryptedSecret,
 						publicKey: accountFixtures.genesis.publicKey,
+						iv: accountFixtures.genesis.iv,
+						salt: accountFixtures.genesis.salt,
+						tag: accountFixtures.genesis.tag,
+						version: accountFixtures.genesis.version,
 					},
 				];
 
@@ -206,12 +239,13 @@ describe('delegates', () => {
 			});
 
 			it('should load all 101 delegates', done => {
-				config.forging.secret = genesisDelegates.delegates.map(delegate => {
-					return {
-						encryptedSecret: delegate.encryptedSecret,
-						publicKey: delegate.publicKey,
-					};
-				});
+				config.forging.secret = genesisDelegates.delegates.map(delegate => ({
+					encryptedSecret: delegate.encryptedSecret,
+					iv: delegate.iv,
+					salt: delegate.salt,
+					tag: delegate.tag,
+					publicKey: delegate.publicKey,
+				}));
 
 				loadDelegates(err => {
 					expect(err).to.not.exist;
