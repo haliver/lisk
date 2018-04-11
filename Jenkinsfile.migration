@@ -20,9 +20,6 @@ pipeline {
 				dir(params.MIGRATE_FROM) {
 					git url: "https://github.com/LiskHQ/lisk.git", branch: params.MIGRATE_FROM
 				}
-				dir(params.MIGRATE_TO) {
-					git url: "https://github.com/LiskHQ/lisk.git", branch: params.MIGRATE_TO
-				}
 				sh """
 				json_files_copy() {
 					case \$1 in
@@ -42,11 +39,18 @@ pipeline {
 				cd "${params.MIGRATE_FROM}"
 				json_files_copy "${params.MIGRATE_FROM}"
 				npm install
-				cd "../${params.MIGRATE_TO}"
-				json_files_copy "${params.MIGRATE_TO}"
-				npm install
 				sudo service postgresql restart
 				"""
+			}
+		}
+		stage("Merge migration tools") {
+			dir(params.MIGRATE_FROM) {
+				sh https://raw.githubusercontent.com/LiskHQ/lisk-scripts/temp-dev/packaged/env.sh
+				sh https://raw.githubusercontent.com/LiskHQ/lisk-scripts/temp-dev/packaged/shared.sh
+				sh https://raw.githubusercontent.com/LiskHQ/lisk-scripts/temp-dev/packaged/lisk.sh
+				sh https://raw.githubusercontent.com/LiskHQ/lisk-scripts/temp-dev/packaged/lisk_bridge.sh
+				sh https://raw.githubusercontent.com/LiskHQ/lisk-scripts/temp-dev/packaged/updateConfig.js
+				sh https://raw.githubusercontent.com/LiskHQ/lisk-scripts/temp-dev/packaged/updateConfig.js
 			}
 		}
 		stage("Start old Lisk") {
