@@ -60,6 +60,9 @@ var endpoints = {
 			getTransactions(ip, port) {
 				return `http://${ip}:${port}/api/transactions`;
 			},
+			getUnsignedTransactions(ip, port) {
+				return `http://${ip}:${port}/api/node/transactions/unsigned`;
+			},
 		},
 	},
 };
@@ -124,6 +127,23 @@ module.exports = {
 		return popsicle
 			.get({
 				url: `${endpoints.versions[currentVersion].getTransactions(
+					ip || '127.0.0.1',
+					port || 4000
+				)}?id=${transactionId}`,
+				headers,
+			})
+			.then(res => {
+				if (currentVersion === '1.0.0') {
+					return JSON.parse(res.body).data[0];
+				}
+				return JSON.parse(res.body).transactions[0];
+			});
+	},
+
+	getUnsignedTransaction(transactionId, port, ip) {
+		return popsicle
+			.get({
+				url: `${endpoints.versions[currentVersion].getUnsignedTransactions(
 					ip || '127.0.0.1',
 					port || 4000
 				)}?id=${transactionId}`,
