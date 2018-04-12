@@ -24,5 +24,9 @@ module.exports = {
 	},
 	stress: {
 		transfer: require('./stress/0.transfer'),
+		data: require('./stress/0.data'),
+		second_passphrase: require('./stress/1.second_passphrase'),
+		multisignature: require('./stress/4.register_multisignature'),
+		dapp: require('./stress/5.register_dapp'),
 	},
 };
