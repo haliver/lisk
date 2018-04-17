@@ -321,6 +321,32 @@ __private.forge = function(cb) {
 	);
 };
 
+const parseEncryptedSecret = encryptedSecret => {
+	const delimiter = '$';
+	const roundsRegExp = /^rounds=(.+)$/;
+	// eslint-disable-next-line no-unused-vars
+	const [_, id, ...encryptedSecretWithoutID] = encryptedSecret.split(delimiter);
+	if (id !== '5') {
+		throw new Error(
+			`Tried to decrypt secret using encryption method with ID ${id}, but currently only ID 5 (SHA-256) is supported.`
+		);
+	}
+	const iterationsMatch = encryptedSecretWithoutID[0].match(roundsRegExp);
+	const iterations = iterationsMatch ? iterationsMatch[1] : null;
+	const [salt, cipherText, iv, tag] =
+		iterations === null
+			? encryptedSecretWithoutID
+			: encryptedSecretWithoutID.slice(1);
+
+	return {
+		iterations,
+		salt,
+		cipherText,
+		iv,
+		tag,
+	};
+};
+
 const getTagBuffer = tag => {
 	const tagBuffer = Buffer.from(tag, 'hex');
 	if (tagBuffer.length !== 16) {
@@ -333,11 +359,11 @@ const PBKDF2_ITERATIONS = 1e6;
 const PBKDF2_KEYLEN = 32;
 const PBKDF2_HASH_FUNCTION = 'sha256';
 
-const getKeyFromPassword = (password, salt) =>
+const getKeyFromPassword = (password, salt, iterations) =>
 	crypto.pbkdf2Sync(
 		password,
 		salt,
-		PBKDF2_ITERATIONS,
+		iterations || PBKDF2_ITERATIONS,
 		PBKDF2_KEYLEN,
 		PBKDF2_HASH_FUNCTION
 	);
@@ -355,12 +381,16 @@ const getKeyFromPassword = (password, salt) =>
  * @returns {string} decryptedSecret
  * @todo Add description for the params
  */
-__private.decryptSecret = function(
-	{ encryptedSecret, iv, salt, tag },
-	password
-) {
+__private.decryptSecret = function({ encryptedSecret }, password) {
+	// const { tag, salt, iv, iterations, cipherText } = parseEncryptedSecret(encryptedSecret);
+	const parsed = parseEncryptedSecret(encryptedSecret);
+	const { tag, salt, iv, iterations, cipherText } = parsed;
 	const tagBuffer = getTagBuffer(tag);
-	const key = getKeyFromPassword(password, Buffer.from(salt, 'hex'));
+	const key = getKeyFromPassword(
+		password,
+		Buffer.from(salt, 'hex'),
+		iterations
+	);
 
 	const decipher = crypto.createDecipheriv(
 		'aes-256-gcm',
@@ -368,7 +398,7 @@ __private.decryptSecret = function(
 		Buffer.from(iv, 'hex')
 	);
 	decipher.setAuthTag(tagBuffer);
-	const firstBlock = decipher.update(Buffer.from(encryptedSecret, 'hex'));
+	const firstBlock = decipher.update(Buffer.from(cipherText, 'hex'));
 	const decrypted = Buffer.concat([firstBlock, decipher.final()]);
 
 	return decrypted.toString();
