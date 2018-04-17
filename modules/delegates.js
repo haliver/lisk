@@ -324,6 +324,15 @@ __private.forge = function(cb) {
 const parseEncryptedSecret = encryptedSecret => {
 	const delimiter = '$';
 	const roundsRegExp = /^rounds=(.+)$/;
+	const ivRegExp = /^iv=(.+)$/;
+	const tagRegExp = /^tag=(.+)$/;
+
+	const getAdditionalParameter = (parameters, regExp) => {
+		const parameter = parameters.find(parameter => regExp.test(parameter));
+		const match = parameter ? parameter.match(regExp) : null;
+		return match && match[1];
+	};
+
 	// eslint-disable-next-line no-unused-vars
 	const [_, id, ...encryptedSecretWithoutID] = encryptedSecret.split(delimiter);
 	if (id !== '5') {
@@ -333,10 +342,13 @@ const parseEncryptedSecret = encryptedSecret => {
 	}
 	const iterationsMatch = encryptedSecretWithoutID[0].match(roundsRegExp);
 	const iterations = iterationsMatch ? iterationsMatch[1] : null;
-	const [salt, cipherText, iv, tag] =
+	const [salt, cipherText, ...additionalParameters] =
 		iterations === null
 			? encryptedSecretWithoutID
 			: encryptedSecretWithoutID.slice(1);
+
+	const iv = getAdditionalParameter(additionalParameters, ivRegExp);
+	const tag = getAdditionalParameter(additionalParameters, tagRegExp);
 
 	return {
 		iterations,
