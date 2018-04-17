@@ -323,7 +323,7 @@ __private.forge = function(cb) {
 
 const parseEncryptedSecret = encryptedSecret => {
 	const delimiter = '$';
-	const roundsRegExp = /^rounds=(.+)$/;
+	const roundsRegExp = /^rounds=(\d+)$/;
 	const ivRegExp = /^iv=(.+)$/;
 	const tagRegExp = /^tag=(.+)$/;
 
@@ -341,7 +341,7 @@ const parseEncryptedSecret = encryptedSecret => {
 		);
 	}
 	const iterationsMatch = encryptedSecretWithoutID[0].match(roundsRegExp);
-	const iterations = iterationsMatch ? iterationsMatch[1] : null;
+	const iterations = iterationsMatch ? parseInt(iterationsMatch[1], 10) : null;
 	const [salt, cipherText, ...additionalParameters] =
 		iterations === null
 			? encryptedSecretWithoutID
